@@ -11,6 +11,7 @@ class Hotel {
     private string $adresseCP;
     private string $adresseVille;
     private array $chambre;
+    private array $reservation;
 
     //-------------------------------------------------------------------
     // METHODE __construct : Permet de recupérer les variales passées en paramètres dans des variables
@@ -22,7 +23,8 @@ class Hotel {
         $this->adresseComplement = $adresseComplement; 
         $this->adresseCP        = $adresseCP;        
         $this->adresseVille     = $adresseVille;       
-        $this->chambre          = [];            
+        $this->chambre          = [];
+        $this->reservations     = [];
     }
 
     //-------------------------------------------------------------------
@@ -73,21 +75,63 @@ class Hotel {
     //-------------------------------------------------------------------
 
     //-------------------------------------------------------------------
-    // FONCTION qui affiche les infos des hôtels
-    //-------------------------------------------------------------------
-    public function afficherInfosHotel() { 
-        $ligne = "<br>Hôtel ".$this->nom."<br>";
-        return $ligne;
-    }    
-    //     //$ligne = "<br>Comptes de ".$this->nom." ".$this->prenom." né(e) le ". $naiss->format('d-m-Y')." à ".$this->ville." âge ".$age." ans : <br>";
-    //     //$ligne = "<br>Comptes de ".$this->nom."<br>";
-    //     return $ligne;
-    // {
-
-    //-------------------------------------------------------------------
     // FONCTION qui permet de récupérer les infos de la chambre dans la classe HOTEL
     //-------------------------------------------------------------------
     public function addChambre(Chambre $chambre) {
         array_push($this->chambre, $chambre);
+    }
+    public function addReservations(Reservation $reservation) {
+        $this->reservations[] = $reservation;
+    }   
+
+    //-------------------------------------------------------------------
+    // FONCTION qui affiche les infos des hôtels
+    //-------------------------------------------------------------------
+    public function afficherInfosHotel() { 
+        $ligne = "<br>Hôtel ".$this->nom."<br>".$this->adresseRue." ".$this->adresseComplement." ".$this->adresseCP." ".$this->adresseVille."<br>";
+        $ligne .= "Nombre de chambres : ".count($this->chambre)."<br>";
+        $ligne .= "Nombre de chambres réservées : ".count($this->reservations)."<br>";
+        $ligne .= "Nombre de chambres dispo : ".count($this->chambre) - count($this->reservations)."<br>";
+
+        return $ligne;
+    }    
+
+    //-------------------------------------------------------------------
+    // FONCTION qui affiche les réservations des hôtels
+    //-------------------------------------------------------------------
+    public function afficherReservations() {
+
+        $ligne = "<br>Réservations de l'hôtel ".$this->nom."<br>";
+       
+        if (empty($this->reservations)) {
+            $ligne .= "Aucune réservations !<br>";
+        } else {
+            $ligne .= count($this->reservations)." Réservations<br>";
+            foreach ($this->reservations as $reservation) {
+                $ligne .= $reservation->afficherNomPrenom()." - ".$reservation->afficherNumeroChambre()." - ".$reservation->afficherDates()."<br>";                  
+            }
+        }       
+        return $ligne;
+    }
+
+    //-------------------------------------------------------------------
+    // FONCTION qui affiche le statut des chambres
+    //-------------------------------------------------------------------
+    public function afficherStatutChambres() {
+        $ligne = "<br>Statut des chambres de l'hôtel ".$this->nom."<br>";
+        foreach ($this->chambre as $chambre) {
+            if ($chambre->getWifi()) {
+                $wifi = "Oui";
+            } else {
+                $wifi = "Non";
+            }
+            if ($chambre->getEtat()) {
+                $etat = "Réservée";
+            } else {
+                $etat = "Disponible";
+            }
+            $ligne .= " Chambre ".$chambre->getNumero()." - ".$chambre->getPrix()." € - ".$wifi." - ".$etat."<br>";   
+        }
+        return $ligne;
     }
 }

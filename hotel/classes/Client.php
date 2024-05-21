@@ -8,19 +8,18 @@ class Client {
     private string $prenom;
     private string $email;
     private string $telephone;
-    private Reservation $reservation;   // Permet de faire le lien avec la classe RESERVATION
+    private array $reservations;
 
     //-------------------------------------------------------------------
     // METHODE __construct : Permet de recupérer les variales passées en paramètres dans des variables
     //-------------------------------------------------------------------
-    public function __construct(string $nom, string $prenom, string $email, string $telephone, Reservation $reservation)   
+    public function __construct(string $nom, string $prenom, string $email, string $telephone)   
     {
         $this->nom          = $nom;        
         $this->prenom       = $prenom;        
         $this->email        = $email;        
         $this->telephone    = $telephone;        
-        $this->reservation  = $reservation;  
-        $reservation->addClient($this);      
+        $this->reservation  = [];
     }
 
     //-------------------------------------------------------------------
@@ -55,11 +54,51 @@ class Client {
         $this->telephone = $telephone;
     }
     // ACCESSEUR ET MUTATEUR du champ RESERVATION
-    public function getReservation(): Reservation {
+    public function getReservation() {
         return $this->reservation;
     }
-    public function setReservation(Reservation $reservation): void{
-        $this->reservation = $reservation;
+    public function setReservation($reservation): void{
+        $this->reservation[] = $reservation;
     }
     //-------------------------------------------------------------------
+
+    public function addReservations(Reservation $reservation)
+    {
+        $this->reservations[] = $reservation;
+    }
+
+    //-------------------------------------------------------------------
+    // FONCTION qui calcul le prix du sejour
+    //-------------------------------------------------------------------
+    public function calculerPrixSejour()
+    {
+        $total = 0;
+        foreach ($this->reservations as $reservation) {
+            $date1   = $reservation->getDateDebut();
+            $date2   = $reservation->getDateFin();
+            $nbJours = $date1->diff($date2);
+            $total += $nbJours->d * $reservation->afficherPrixChambre();
+        }
+        return $total;
+    }
+
+    //-------------------------------------------------------------------
+    // FONCTION qui affiche les réservations des hôtels
+    //-------------------------------------------------------------------
+    public function afficherReservations() {
+
+        $ligne = "<br>Réservations de ".$this->nom." ".$this->prenom."<br>";
+       
+        if (empty($this->reservations)) {
+            $ligne .= "Aucune réservations !<br>";
+        } else  {        
+            $ligne .= count($this->reservations)." Réservations<br>";
+             foreach ($this->reservations as $reservation) {
+                  $ligne .= $reservation->afficherNomHotel()." / ".$reservation->afficherNumeroChambre()." ".$reservation->afficherInfoChambre()." ".$reservation->afficherDates()."<br>";
+             }
+        }
+        $ligne .= "Total : " . $this->calculerPrixSejour() . " €<br>";     
+        return $ligne;
+    }
+
 }    
